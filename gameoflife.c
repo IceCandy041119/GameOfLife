@@ -22,14 +22,49 @@
 //and the left column as adjacent to the right column.
 Color *evaluateOneCell(Image *image, int row, int col, uint32_t rule)
 {
-	//YOUR CODE HERE
+	Color *nextState = (Color *)malloc(sizeof(Color));
+	int isAlive = 0;
+	int aliveNeighour = 0;
+	int dx[8] = {0,0,1,-1,-1,1,1,-1};
+	int dy[8] = {1,-1,0,0,-1,1,-1,1};
+	int judge = 0;
+
+	isAlive = (*(image->image + row * (image->cols) + col))->R == 255 && (*(image->image + row * (image->cols) + col))->G == 255 && (*(image->image + row * (image->cols) + col))->B == 255;
+
+	for(int i = 0;i<8;i++){
+		int nextRow = ((row + dx[i] + image->rows) % image->rows);	
+		int nextCol = ((col + dy[i] + image->cols) % image->cols);	
+		if((*image->image + nextRow * (image->cols) + nextCol)->R == 255 && (*image->image + nextRow * (image->cols) + nextCol)->G == 255 &&(*image->image + nextRow * (image->cols) + nextCol)->B == 255)
+			aliveNeighour++;
+	}
+	
+	judge = (9*isAlive + aliveNeighour) & rule;
+
+		nextState->R = 255 * judge;
+		nextState->G = 255 * judge;
+		nextState->B = 255 * judge;
+
+	return nextState;
 }
 
 //The main body of Life; given an image and a rule, computes one iteration of the Game of Life.
 //You should be able to copy most of this from steganography.c
 Image *life(Image *image, uint32_t rule)
 {
-	//YOUR CODE HERE
+	
+	Image *iteration = (Image *)malloc(sizeof(Image));
+	iteration->cols = image->cols;
+	iteration->rows = image->rows;
+	iteration->image = (Color **)malloc(sizeof(Color *) * image->cols *image->rows);
+	Color **p = iteration->image;
+
+	for(int i = 0;i < image->rows;i++){
+		for(int j = 0;j < image->cols;j++){
+			*p = evaluateOneCell(image,i,j,rule);
+			p++;
+		}
+	}	
+	return iteration;
 }
 
 /*
@@ -49,5 +84,16 @@ You may find it useful to copy the code from steganography.c, to start.
 */
 int main(int argc, char **argv)
 {
-	//YOUR CODE HERE
+	if(argc != 3){
+		printf("usage: %s rule\n",argv[0]);
+		printf("filename is an ASCII PPM file(type 3) with maximum value 255\n");
+		printf("rule is a hex number beginning with 0x;Life is 0x1808\n");
+		return -1;
+	}
+	Image *img = readData(argv[1]);
+	uint32_t rule = strtol(argv[2],NULL,16);
+	Image *nextState = life(img,rule);
+	writeData(nextState);
+	freeImage(nextState);
+	freeImage(img);
 }
