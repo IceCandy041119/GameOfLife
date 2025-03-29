@@ -28,31 +28,31 @@ Color *evaluateOneCell(Image *image, int row, int col, uint32_t rule)
 	int dx[8] = {0,0,1,-1,-1,1,1,-1};
 	int dy[8] = {1,-1,0,0,-1,1,-1,1};
 
-	isAliveR = (*(image->image + row * (image->cols) + col))->R == 255;
-	isAliveG = (*(image->image + row * (image->cols) + col))->G == 255;
-	isAliveB = (*(image->image + row * (image->cols) + col))->B == 255;
+	isAliveR = (*(image->image + row * (image->cols) + col))->R != 0;
+	isAliveG = (*(image->image + row * (image->cols) + col))->G != 0;
+	isAliveB = (*(image->image + row * (image->cols) + col))->B != 0;
 
 	for(int i = 0;i<8;i++){
 		int nextRow = ((row + dx[i] + image->rows) % image->rows);	
 		int nextCol = ((col + dy[i] + image->cols) % image->cols);	
-		if((*(image->image + nextRow * (image->cols) + nextCol))->R == 255)
+		if((*(image->image + nextRow * (image->cols) + nextCol))->R == (*(image->image + row * (image->cols) + col))->R)
 			aliveNeighourR++;
-		if((*(image->image + nextRow * (image->cols) + nextCol))->G == 255)
+		if((*(image->image + nextRow * (image->cols) + nextCol))->G == (*(image->image + row * (image->cols) + col))->G)
 			aliveNeighourG++;
-		if((*(image->image + nextRow * (image->cols) + nextCol))->B == 255)
+		if((*(image->image + nextRow * (image->cols) + nextCol))->B == (*(image->image + row * (image->cols) + col))->G)
 			aliveNeighourB++;
 	}
 	
 	if((1<<(9*isAliveR + aliveNeighourR)) & rule)
-		nextState->R = 255;
+		nextState->R = (*(image->image + row * (image->cols) + col))->R;
 	else
 		nextState->R = 0;
 	if((1<<(9*isAliveG + aliveNeighourG)) & rule)
-		nextState->G = 255;
+		nextState->G = (*(image->image + row * (image->cols) + col))->G;
 	else
 		nextState->G = 0;
 	if( (1<<(9*isAliveB + aliveNeighourB)) & rule)
-		nextState->B = 255;
+		nextState->B = (*(image->image + row * (image->cols) + col))->B;
 	else
 		nextState->B = 0;
 
