@@ -44,11 +44,11 @@ Color *evaluateOneCell(Image *image, int row, int col, uint32_t rule)
 			aliveNeighourB++;
 	}
 	
-	judge = (9*isAliveR + aliveNeighourR) & rule;
+	judge = (1<<(9*isAliveR + aliveNeighourR)) & rule;
 	nextState->R = 255 * judge;
-	judge = (9*isAliveG + aliveNeighourG) & rule;
+	judge = (1<<(9*isAliveG + aliveNeighourG)) & rule;
 	nextState->G = 255 * judge;
-	judge = (9*isAliveB + aliveNeighourB) & rule;
+	judge = (1<<(9*isAliveB + aliveNeighourB)) & rule;
 	nextState->B = 255 * judge;
 
 	return nextState;
