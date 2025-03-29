@@ -27,7 +27,6 @@ Color *evaluateOneCell(Image *image, int row, int col, uint32_t rule)
 	int aliveNeighourR = 0,aliveNeighourG = 0,aliveNeighourB = 0;
 	int dx[8] = {0,0,1,-1,-1,1,1,-1};
 	int dy[8] = {1,-1,0,0,-1,1,-1,1};
-	int judge = 0;
 
 	isAliveR = (*(image->image + row * (image->cols) + col))->R == 255;
 	isAliveG = (*(image->image + row * (image->cols) + col))->G == 255;
@@ -36,20 +35,26 @@ Color *evaluateOneCell(Image *image, int row, int col, uint32_t rule)
 	for(int i = 0;i<8;i++){
 		int nextRow = ((row + dx[i] + image->rows) % image->rows);	
 		int nextCol = ((col + dy[i] + image->cols) % image->cols);	
-		if((*image->image + nextRow * (image->cols) + nextCol)->R == 255)
+		if((*(image->image + nextRow * (image->cols) + nextCol))->R == 255)
 			aliveNeighourR++;
-		if((*image->image + nextRow * (image->cols) + nextCol)->G == 255)
+		if((*(image->image + nextRow * (image->cols) + nextCol))->G == 255)
 			aliveNeighourG++;
-		if((*image->image + nextRow * (image->cols) + nextCol)->B == 255)
+		if((*(image->image + nextRow * (image->cols) + nextCol))->B == 255)
 			aliveNeighourB++;
 	}
 	
-	judge = (1<<(9*isAliveR + aliveNeighourR)) & rule;
-	nextState->R = 255 * judge;
-	judge = (1<<(9*isAliveG + aliveNeighourG)) & rule;
-	nextState->G = 255 * judge;
-	judge = (1<<(9*isAliveB + aliveNeighourB)) & rule;
-	nextState->B = 255 * judge;
+	if((1<<(9*isAliveR + aliveNeighourR)) & rule)
+		nextState->R = 255;
+	else
+		nextState->R = 0;
+	if((1<<(9*isAliveG + aliveNeighourG)) & rule)
+		nextState->G = 255;
+	else
+		nextState->G = 0;
+	if( (1<<(9*isAliveB + aliveNeighourB)) & rule)
+		nextState->B = 255;
+	else
+		nextState->B = 0;
 
 	return nextState;
 }
