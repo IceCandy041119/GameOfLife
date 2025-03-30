@@ -23,39 +23,54 @@
 Color *evaluateOneCell(Image *image, int row, int col, uint32_t rule)
 {
 	Color *nextState = (Color *)malloc(sizeof(Color));
-	int isAliveR,isAliveG,isAliveB;
-	int aliveNeighourR = 0,aliveNeighourG = 0,aliveNeighourB = 0;
+	int isAliveR[8],isAliveG[8],isAliveB[8];
+	int aliveNeighoursR[8] = {0},aliveNeighoursG[8] = {0},aliveNeighoursB[8] = {0};
 	int dx[8] = {0,0,1,-1,-1,1,1,-1};
 	int dy[8] = {1,-1,0,0,-1,1,-1,1};
+	
+	for(int i = 7;i >= 0;i--){
+		isAliveR[i] = ((*(image->image + row * (image->cols) + col))->R & (1<<i)) != 0;
+		isAliveG[i] = ((*(image->image + row * (image->cols) + col))->G & (1<<i)) != 0;
+		isAliveB[i] = ((*(image->image + row * (image->cols) + col))->B & (1<<i)) != 0;
+	}
 
-	isAliveR = (*(image->image + row * (image->cols) + col))->R != 0;
-	isAliveG = (*(image->image + row * (image->cols) + col))->G != 0;
-	isAliveB = (*(image->image + row * (image->cols) + col))->B != 0;
-
-	for(int i = 0;i<8;i++){
+	for(int i = 7;i >= 0;i--){
 		int nextRow = ((row + dx[i] + image->rows) % image->rows);	
 		int nextCol = ((col + dy[i] + image->cols) % image->cols);	
-		if((*(image->image + nextRow * (image->cols) + nextCol))->R != 0)
-			aliveNeighourR++;
-		if((*(image->image + nextRow * (image->cols) + nextCol))->G != 0)
-			aliveNeighourG++;
-		if((*(image->image + nextRow * (image->cols) + nextCol))->B != 0)
-			aliveNeighourB++;
+		for(int R = 7;R >= 0;R--){
+			if((*(image->image + nextRow * (image->cols) + nextCol))->R & (1 << R)){
+				aliveNeighoursR[R]++;
+			}
+		}
+		for(int G = 7;G >= 0;G--){
+			if((*(image->image + nextRow * (image->cols) + nextCol))->G & (1 << G)){
+				aliveNeighoursG[G]++;
+			}
+		}
+		for(int B = 7;B >= 0;B--){
+			if((*(image->image + nextRow * (image->cols) + nextCol))->B & (1 << B)){
+				aliveNeighoursB[B]++;
+			}
+		}
 	}
 	
-	if((1<<(9*isAliveR + aliveNeighourR)) & rule)
-		nextState->R = rand() % 256;
-	else
-		nextState->R = 0;
-	if((1<<(9*isAliveG + aliveNeighourG)) & rule)
-		nextState->G =	rand() % 256; 
-	else
-		nextState->G = 0;
-	if( (1<<(9*isAliveB + aliveNeighourB)) & rule)
-		nextState->B =	rand() % 256;
-	else
-		nextState->B = 0;
-
+	for(int i = 7;i >= 0;i--){
+		if((1 << (aliveNeighoursR[i] + (9*isAliveR[i]))) & rule){
+			nextState->R |= 1 << i;
+		}else{
+			nextState->R &= 0 << i;
+		}
+		if((1 << (aliveNeighoursG[i] + (9*isAliveG[i]))) & rule){
+			nextState->G |= 1 << i;
+		}else{
+			nextState->G &= 0 << i;
+		}
+		if((1 << (aliveNeighoursB[i] + (9*isAliveB[i]))) & rule){
+			nextState->B |= 1 << i;
+		}else{
+			nextState->B &= 0 << i;
+		}
+	}
 	return nextState;
 }
 
